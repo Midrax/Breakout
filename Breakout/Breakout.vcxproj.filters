@@ -40,4 +40,18 @@
       <Filter>Assets</Filter>
     </Manifest>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Sounds\hit.wav">
+      <Filter>Assets</Filter>
+    </Media>
+    <Media Include="Sounds\paddle.wav">
+      <Filter>Assets</Filter>
+    </Media>
+    <Media Include="Sounds\wall.wav">
+      <Filter>Assets</Filter>
+    </Media>
+  </ItemGroup>
 </Project>

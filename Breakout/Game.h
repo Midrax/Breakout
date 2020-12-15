@@ -15,7 +15,7 @@ class Game final : public DX::IDeviceNotify
 public:
 
     Game() noexcept(false);
-
+    ~Game();
     // Initialization and management
     void Initialize(HWND window, int width, int height);
 
@@ -37,6 +37,9 @@ public:
     // Properties
     void GetDefaultSize( int& width, int& height ) const;
 
+    // Audio
+    void OnNewAudioDevice() { m_retryAudio = true; }
+
 private:
 
     void Update(DX::StepTimer const& timer);
@@ -49,6 +52,14 @@ private:
 
     // Device resources.
     std::unique_ptr<DX::DeviceResources>    m_deviceResources;
+
+    // Audio
+    std::unique_ptr<DirectX::AudioEngine>   m_audEngine;
+    bool m_retryAudio;
+
+    std::unique_ptr<DirectX::SoundEffect>   m_paddle;
+    std::unique_ptr<DirectX::SoundEffect>   m_wall;
+    std::unique_ptr<DirectX::SoundEffect>   m_brick;
 
     // Rendering loop timer.
     DX::StepTimer                           m_timer;

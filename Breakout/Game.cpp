@@ -17,6 +17,14 @@ Game::Game() noexcept(false)
     m_deviceResources->RegisterDeviceNotify(this);
 }
 
+Game::~Game()
+{
+    if (m_audEngine)
+    {
+        m_audEngine->Suspend();
+    }
+}
+
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
@@ -28,12 +36,19 @@ void Game::Initialize(HWND window, int width, int height)
     m_deviceResources->CreateWindowSizeDependentResources();
     CreateWindowSizeDependentResources();
 
-    // TODO: Change the timer settings if you want something other than the default variable timestep mode.
-    // e.g. for 60 FPS fixed timestep update logic, call:
-    /*
     m_timer.SetFixedTimeStep(true);
     m_timer.SetTargetElapsedSeconds(1.0 / 60);
-    */
+    
+    AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
+#ifdef _DEBUG
+    eflags |= AudioEngine_Debug;
+#endif
+    m_audEngine = std::make_unique<AudioEngine>(eflags);
+    m_retryAudio = false;
+
+    m_paddle_sound = std::make_unique<SoundEffect>(m_audEngine.get(), L"Sounds/paddle.wav");
+    m_wall_sound = std::make_unique<SoundEffect>(m_audEngine.get(), L"Sounds/wall.wav");
+    m_brick_sound = std::make_unique<SoundEffect>(m_audEngine.get(), L"Sounds/hit.wav");
 }
 
 #pragma region Frame Update
@@ -54,6 +69,22 @@ void Game::Update(DX::StepTimer const& timer)
     float elapsedTime = float(timer.GetElapsedSeconds());
 
     // TODO: Add your game logic here.
+    if (m_retryAudio)
+    {
+        m_retryAudio = false;
+        if (m_audEngine->Reset())
+        {
+            // TODO: restart any looped sounds here
+        }
+    }
+    else if (!m_audEngine->Update())
+    {
+        if (m_audEngine->IsCriticalError())
+        {
+            m_retryAudio = true;
+        }
+    }
+
     elapsedTime;
 }
 #pragma endregion
@@ -119,6 +150,7 @@ void Game::OnDeactivated()
 void Game::OnSuspending()
 {
     // TODO: Game is being power-suspended (or minimized).
+    m_audEngine->Suspend();
 }
 
 void Game::OnResuming()
@@ -126,6 +158,7 @@ void Game::OnResuming()
     m_timer.ResetElapsedTime();
 
     // TODO: Game is being power-resumed (or returning from minimize).
+    m_audEngine->Resume();
 }
 
 void Game::OnWindowMoved()
