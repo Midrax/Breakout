@@ -73,6 +73,8 @@
 #include "VertexTypes.h"
 #include "WICTextureLoader.h"
 #include "Audio.h"
+using namespace DirectX::SimpleMath;
+using namespace DirectX;
 
 namespace DX
 {

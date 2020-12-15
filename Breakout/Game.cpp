@@ -10,6 +10,7 @@ extern void ExitGame();
 using namespace DirectX;
 
 using Microsoft::WRL::ComPtr;
+using namespace DirectX::SimpleMath;
 
 Game::Game() noexcept(false)
 {
@@ -45,6 +46,8 @@ void Game::Initialize(HWND window, int width, int height)
 #endif
     m_audEngine = std::make_unique<AudioEngine>(eflags);
     m_retryAudio = false;
+
+    m_keyboard = std::make_unique<Keyboard>();
 
     m_paddle_sound = std::make_unique<SoundEffect>(m_audEngine.get(), L"Sounds/paddle.wav");
     m_wall_sound = std::make_unique<SoundEffect>(m_audEngine.get(), L"Sounds/wall.wav");
@@ -85,6 +88,15 @@ void Game::Update(DX::StepTimer const& timer)
         }
     }
 
+    auto kb = m_keyboard->GetState();
+    if (kb.Escape)
+    {
+        ExitGame();
+    }
+
+    m_ball.Update();
+    m_paddle.Update(kb);
+
     elapsedTime;
 }
 #pragma endregion
@@ -105,6 +117,9 @@ void Game::Render()
     auto context = m_deviceResources->GetD3DDeviceContext();
 
     // TODO: Add your rendering code here.
+    m_ball.Render(m_view, m_proj);
+    m_paddle.Render(m_view, m_proj);
+
     context;
 
     m_deviceResources->PIXEndEvent();
@@ -123,7 +138,7 @@ void Game::Clear()
     auto renderTarget = m_deviceResources->GetRenderTargetView();
     auto depthStencil = m_deviceResources->GetDepthStencilView();
 
-    context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
+    context->ClearRenderTargetView(renderTarget, Colors::Black);
     context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     context->OMSetRenderTargets(1, &renderTarget, depthStencil);
 
@@ -191,8 +206,11 @@ void Game::GetDefaultSize(int& width, int& height) const
 void Game::CreateDeviceDependentResources()
 {
     auto device = m_deviceResources->GetD3DDevice();
-
+    auto context = m_deviceResources->GetD3DDeviceContext();
     // TODO: Initialize device dependent objects here (independent of window size).
+    m_ball.Initialize(context);
+    m_paddle.Initialize(context);
+
     device;
 }
 
@@ -200,11 +218,21 @@ void Game::CreateDeviceDependentResources()
 void Game::CreateWindowSizeDependentResources()
 {
     // TODO: Initialize windows-size dependent objects here.
+    auto size = m_deviceResources->GetOutputSize();
+    float backBufferWidth = size.right / 2.f;
+    float backBufferHeight = size.bottom / 2.f;
+
+    m_view = Matrix::CreateLookAt(Vector3(0.f, 2.f, 5.f),
+        Vector3::Zero, Vector3::UnitY);
+    m_proj = Matrix::CreatePerspectiveFieldOfView(XMConvertToRadians(60.f),
+        float(size.right) / float(size.bottom), 0.01f, 1000.f);
 }
 
 void Game::OnDeviceLost()
 {
     // TODO: Add Direct3D resource cleanup here.
+    m_ball.Reset();
+    m_paddle.Reset();
 }
 
 void Game::OnDeviceRestored()
