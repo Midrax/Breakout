@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "Paddle.h"
+#include "Constants.h"
 
 void Paddle::Initialize(ID3D11DeviceContext1* context)
 {
+	location = Vector3(0.f, -2.15f, 0.f);
 	m_paddle = GeometricPrimitive::CreateCube(context);
 	m_world = Matrix::Identity;
-	m_world = m_world.CreateScale(0.15f, 0.15f, 0.15f);
-	m_world.Translation(Vector3(0.f, -2.f, 0));
-	Vector3 move = Vector3::Zero;
+	m_world = m_world.CreateScale(PADDLE_SIZE);
 }
 
 void Paddle::Reset()
@@ -24,9 +24,18 @@ void Paddle::Update(Keyboard::State kb)
 {
 
 	if (kb.Left || kb.A)
-		move.x -= 0.1f;
+		location.x -= 0.1f;
 
 	if (kb.Right || kb.D)
-		move.x += 0.1f;
-	m_world.Translation(move);
+		location.x += 0.1f;
+	
+	if (location.x - PADDLE_SIZE.x/2 < LEFT_EDGE + EDGE_SIZE/2)
+	{
+		location.x = LEFT_EDGE + EDGE_SIZE / 2 + PADDLE_SIZE.x / 2;
+	}
+	if (location.x + PADDLE_SIZE.x / 2 > RIGHT_EDGE - EDGE_SIZE / 2)
+	{
+		location.x = RIGHT_EDGE - EDGE_SIZE / 2 - PADDLE_SIZE.x / 2;
+	}
+	m_world.Translation(location);
 }

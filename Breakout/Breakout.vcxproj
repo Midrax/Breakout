@@ -159,8 +159,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="DeviceResources.h" />
-    <ClInclude Include="FileReader.h" />
+    <ClInclude Include="Edges.h" />
+    <ClInclude Include="Bricks.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Paddle.h" />
     <ClInclude Include="pch.h" />
@@ -169,7 +171,8 @@
   <ItemGroup>
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
-    <ClCompile Include="FileReader.cpp" />
+    <ClCompile Include="Edges.cpp" />
+    <ClCompile Include="Bricks.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Paddle.cpp" />

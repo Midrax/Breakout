@@ -8,6 +8,8 @@
 #include "StepTimer.h"
 #include "Ball.h"
 #include "Paddle.h"
+#include "Edges.h"
+#include "Bricks.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -76,4 +78,9 @@ private:
     Ball                                    m_ball;
     //Paddle
     Paddle                                  m_paddle;
+    // Edges
+    Edges                                   m_edges;
+
+    // FileReader
+    Bricks                                  m_bricks;
 };

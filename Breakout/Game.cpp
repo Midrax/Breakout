@@ -94,8 +94,11 @@ void Game::Update(DX::StepTimer const& timer)
         ExitGame();
     }
 
-    m_ball.Update();
+    m_ball.Update(kb, m_paddle.location);
+    if (m_ball.hitWall) m_wall_sound->Play();
+    if (m_ball.hitPaddle) m_paddle_sound->Play();
     m_paddle.Update(kb);
+    m_bricks.Update(m_ball.location);
 
     elapsedTime;
 }
@@ -119,7 +122,8 @@ void Game::Render()
     // TODO: Add your rendering code here.
     m_ball.Render(m_view, m_proj);
     m_paddle.Render(m_view, m_proj);
-
+    m_edges.Render(m_view, m_proj);
+    m_bricks.Render(m_view, m_proj);
     context;
 
     m_deviceResources->PIXEndEvent();
@@ -210,6 +214,9 @@ void Game::CreateDeviceDependentResources()
     // TODO: Initialize device dependent objects here (independent of window size).
     m_ball.Initialize(context);
     m_paddle.Initialize(context);
+    m_edges.Initialize(context);
+
+    m_bricks.Initialize("Levels/01.txt", context);
 
     device;
 }
@@ -222,7 +229,7 @@ void Game::CreateWindowSizeDependentResources()
     float backBufferWidth = size.right / 2.f;
     float backBufferHeight = size.bottom / 2.f;
 
-    m_view = Matrix::CreateLookAt(Vector3(0.f, 2.f, 5.f),
+    m_view = Matrix::CreateLookAt(Vector3(0.f, 1.25f, 6.f),
         Vector3::Zero, Vector3::UnitY);
     m_proj = Matrix::CreatePerspectiveFieldOfView(XMConvertToRadians(60.f),
         float(size.right) / float(size.bottom), 0.01f, 1000.f);
@@ -233,6 +240,8 @@ void Game::OnDeviceLost()
     // TODO: Add Direct3D resource cleanup here.
     m_ball.Reset();
     m_paddle.Reset();
+    m_edges.Reset();
+    m_bricks.Reset();
 }
 
 void Game::OnDeviceRestored()
