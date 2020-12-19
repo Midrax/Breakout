@@ -53,9 +53,9 @@ void Ball::Update(Keyboard::State kb, Vector3 paddleLocation, double dt)
 		speed.y = -speed.y;
 		float xDiff = location.x - paddleLocation.x;
 		if (xDiff >= 0)
-			speed.x = clamp(xDiff, 1.75f, 5.f);
+			speed.x = clamp(xDiff, 1.5f, 5.f);
 		if (xDiff < 0)
-			speed.x = clamp(xDiff, -5.f, -1.75f);
+			speed.x = clamp(xDiff, -5.f, -1.5f);
 	}
 	else 
 	{

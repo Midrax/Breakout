@@ -70,8 +70,7 @@ private:
     // Rendering loop timer.
     DX::StepTimer                           m_timer;
 
-    // View and Projection
-    DirectX::SimpleMath::Matrix m_view;
+    // Projection
     DirectX::SimpleMath::Matrix m_proj;
 
     // Ball
