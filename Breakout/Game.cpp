@@ -94,11 +94,12 @@ void Game::Update(DX::StepTimer const& timer)
         ExitGame();
     }
 
-    m_ball.Update(kb, m_paddle.location);
+    m_bricks.Update(m_ball);
+    m_ball.Update(kb, m_paddle.location, m_timer.GetElapsedSeconds());
     if (m_ball.hitWall) m_wall_sound->Play();
     if (m_ball.hitPaddle) m_paddle_sound->Play();
-    m_paddle.Update(kb);
-    m_bricks.Update(m_ball.location);
+    if (m_ball.hitBrick) m_brick_sound->Play();
+    m_paddle.Update(kb, m_ball);
 
     elapsedTime;
 }
@@ -226,8 +227,6 @@ void Game::CreateWindowSizeDependentResources()
 {
     // TODO: Initialize windows-size dependent objects here.
     auto size = m_deviceResources->GetOutputSize();
-    float backBufferWidth = size.right / 2.f;
-    float backBufferHeight = size.bottom / 2.f;
 
     m_view = Matrix::CreateLookAt(Vector3(0.f, 1.25f, 6.f),
         Vector3::Zero, Vector3::UnitY);

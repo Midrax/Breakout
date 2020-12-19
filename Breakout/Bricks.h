@@ -3,14 +3,16 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include "Ball.h"
+
 using namespace std;
 
-struct BrickData
+class BrickData
 {
-    float x;
-    float y;
-    Color c;
-    Matrix world;
+public:
+    Color color;
+    Vector3 location;
+    Vector3 scale;
 };
 
 class Bricks
@@ -19,7 +21,7 @@ public:
 	void Initialize(string s, ID3D11DeviceContext1* context);
     void Reset();
     void Render(Matrix view, Matrix proj);
-    void Update(Vector3 ballLocation);
+    void Update(Ball &ball);
 
     vector<BrickData>                       m_brickData;
 private:
@@ -29,5 +31,6 @@ private:
     unsigned int width;
     float levelWidth;
     float levelHeight;
+    Matrix m_world;
 };
 

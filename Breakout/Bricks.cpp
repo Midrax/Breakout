@@ -39,19 +39,19 @@ void Bricks::Initialize(string s, ID3D11DeviceContext1* context)
                     if (tileData[i][j] == 'Y')
                     {
                         BrickData b;
-                        b.y = i * blockHeight + height * blockHeight / 2 + blockHeight/2;
-                        b.x = j * blockWidth - width * blockWidth/2 + blockWidth / 2;
-                        b.c = Colors::Yellow;
-                        b.world = Matrix::Identity.CreateScale(blockWidth - blockWidth / 4, 0.2f, 0.2f);
+                        b.color = Colors::Yellow;
+                        b.location = Vector3(j * blockWidth - width * blockWidth / 2 + blockWidth / 2, 
+                            i * blockHeight + (height + 2 )* blockHeight / 2, 0);
+                        b.scale = Vector3(blockWidth - blockWidth / 4, blockHeight - blockHeight / 4, 0.2f);
                         brickData.push_back(b);
                     }
                     if (tileData[i][j] == 'O')
                     {
                         BrickData b;
-                        b.y = i * blockHeight + height * blockHeight / 2 + blockHeight / 2;
-                        b.x = j * blockWidth - width * blockWidth / 2 + blockWidth / 2;
-                        b.c = Colors::Orange;
-                        b.world = Matrix::Identity.CreateScale(blockWidth-blockWidth/4, 0.2f, 0.2f);
+                        b.color = Colors::Orange;
+                        b.location = Vector3(j * blockWidth - width * blockWidth / 2 + blockWidth / 2,
+                            i * blockHeight + (height + 2 )* blockHeight / 2, 0);
+                        b.scale = Vector3(blockWidth - blockWidth / 4, blockHeight - blockHeight / 4, 0.2f);
                         brickData.push_back(b);
                     }
                     n++;
@@ -72,12 +72,51 @@ void Bricks::Render(Matrix view, Matrix proj)
 {
     for (int i = 0; i < m_brickData.size(); i++)
     {
-        m_brickData[i].world.Translation(Vector3(m_brickData[i].x, m_brickData[i].y, 0.f));
-
-        m_brick->Draw(m_brickData[i].world, view, proj, m_brickData[i].c);
+        auto b = m_brickData[i];
+        m_world = Matrix::Identity.CreateScale(b.scale);
+        m_world.Translation(b.location);
+        m_brick->Draw(m_world, view, proj, b.color);
     }
 }
 
-void Bricks::Update(Vector3 ballLocation)
+void Bricks::Update(Ball &ball)
 {
+    // A = TOP LEFT, B = TOP RIGHT, C = BOTTOM LEFT;
+    Vector2 ballA = Vector2(ball.location.x - ball.scale.x / 2, ball.location.y + ball.scale.y / 2);
+    Vector2 ballB = Vector2(ball.location.x + ball.scale.x / 2, ball.location.y + ball.scale.y / 2);
+    Vector2 ballC = Vector2(ball.location.x - ball.scale.x / 2, ball.location.y - ball.scale.y / 2);
+
+    bool hasHit = false;
+    for (int i = 0; i < m_brickData.size(); i++)
+    {
+        if (!hasHit)
+        {
+            Vector2 brickA = Vector2(m_brickData[i].location.x - m_brickData[i].scale.x / 2, m_brickData[i].location.y + m_brickData[i].scale.y / 2);
+            Vector2 brickB = Vector2(m_brickData[i].location.x + m_brickData[i].scale.x / 2, m_brickData[i].location.y + m_brickData[i].scale.y / 2);
+            Vector2 brickC = Vector2(m_brickData[i].location.x - m_brickData[i].scale.x / 2, m_brickData[i].location.y - m_brickData[i].scale.y / 2);
+
+            if (ballA.y >= brickC.y && ballC.y <= brickA.y &&
+                ballB.x >= brickA.x && ballA.x <= brickB.x
+                )
+            {
+                if (m_brickData[i].color.ToVector3() == Colors::Orange.v)
+                {
+                    m_brickData[i].color = Colors::Yellow;
+                }
+                else
+                {
+                    m_brickData[i].location.y = -500;
+                }
+                if (ball.location.y > brickC.y && ball.location.y < brickA.y && (ball.location.x >= m_brickData[i].location.x || ball.location.x <= m_brickData[i].location.x))
+                {
+                    ball.speed.x *= -1;
+                }
+                else
+                    ball.speed.y *= -1;
+                hasHit = true;
+
+            }
+        }
+    }
+    ball.hitBrick = hasHit;
 }

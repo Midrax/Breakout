@@ -8,15 +8,15 @@ public:
 	void Initialize(ID3D11DeviceContext1* context);
 	void Reset();
 	void Render(Matrix view, Matrix proj);
-	void Update(Keyboard::State kb, Vector3 paddleLocation);
+	void Update(Keyboard::State kb, Vector3 paddleLocation, double dt);
 	Vector3 location;
-	Vector2 movingOffset;
+	Vector3 scale;
+	Vector2 speed;
 	bool hitWall = false;
 	bool hitBrick = false;
 	bool hitPaddle = false;
+	bool startedMoving = false;
 private:
 	std::unique_ptr<DirectX::GeometricPrimitive> m_sphere;
 	Matrix m_world;
-	bool startedMoving = false;
 };
-

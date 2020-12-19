@@ -20,8 +20,12 @@ void Paddle::Render(Matrix view, Matrix proj)
 	m_paddle->Draw(m_world, view, proj, Colors::Beige);
 }
 
-void Paddle::Update(Keyboard::State kb)
+void Paddle::Update(Keyboard::State kb, Ball &ball)
 {
+	if (!ball.startedMoving)
+	{
+		ball.location.x = location.x;
+	}
 
 	if (kb.Left || kb.A)
 		location.x -= 0.1f;
