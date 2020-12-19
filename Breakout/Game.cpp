@@ -49,6 +49,7 @@ void Game::Initialize(HWND window, int width, int height)
 
     m_keyboard = std::make_unique<Keyboard>();
 
+    // Initializing SFX
     m_paddle_sound = std::make_unique<SoundEffect>(m_audEngine.get(), L"Sounds/paddle.wav");
     m_wall_sound = std::make_unique<SoundEffect>(m_audEngine.get(), L"Sounds/wall.wav");
     m_brick_sound = std::make_unique<SoundEffect>(m_audEngine.get(), L"Sounds/hit.wav");
@@ -94,12 +95,16 @@ void Game::Update(DX::StepTimer const& timer)
         ExitGame();
     }
 
+    // Update the Paddle location
+    m_paddle.Update(kb, m_ball);
+    // The bricks are updated according to the ball's position.
     m_bricks.Update(m_ball);
+    // Update the ball position using the paddle location
     m_ball.Update(kb, m_paddle.location, m_timer.GetElapsedSeconds());
+    // Play sounds if conditions are met
     if (m_ball.hitWall) m_wall_sound->Play();
     if (m_ball.hitPaddle) m_paddle_sound->Play();
     if (m_ball.hitBrick) m_brick_sound->Play();
-    m_paddle.Update(kb, m_ball);
 
     elapsedTime;
 }
@@ -121,10 +126,21 @@ void Game::Render()
     auto context = m_deviceResources->GetD3DDeviceContext();
 
     // TODO: Add your rendering code here.
-    m_ball.Render(m_view, m_proj);
-    m_paddle.Render(m_view, m_proj);
-    m_edges.Render(m_view, m_proj);
-    m_bricks.Render(m_view, m_proj);
+    m_yaw = m_ball.location.y;
+    m_pitch = m_ball.location.x;
+    float y = sinf(m_pitch);
+    float r = cosf(m_pitch);
+    float z = r * cosf(m_yaw);
+    float x = r * sinf(m_yaw);
+
+    XMVECTOR lookAt = -m_cameraPos + Vector3(x, y, z);
+
+    XMMATRIX view = XMMatrixLookAtRH(m_cameraPos, lookAt, Vector3::Up);
+
+    m_ball.Render(view, m_proj);
+    m_paddle.Render(view, m_proj);
+    m_edges.Render(view, m_proj);
+    m_bricks.Render(view, m_proj);
     context;
 
     m_deviceResources->PIXEndEvent();
@@ -227,11 +243,10 @@ void Game::CreateWindowSizeDependentResources()
 {
     // TODO: Initialize windows-size dependent objects here.
     auto size = m_deviceResources->GetOutputSize();
-
-    m_view = Matrix::CreateLookAt(Vector3(0.f, 1.25f, 6.f),
-        Vector3::Zero, Vector3::UnitY);
+    //m_view = Matrix::CreateLookAt(Vector3(0.f, 1.25f, 6.f), Vector3::Zero, Vector3::UnitY);
     m_proj = Matrix::CreatePerspectiveFieldOfView(XMConvertToRadians(60.f),
         float(size.right) / float(size.bottom), 0.01f, 1000.f);
+    //m_view = Matrix::CreateLookAt(Vector3(0.f, 1.25f, 6.f), Vector3::Zero, Vector3::UnitY);
 }
 
 void Game::OnDeviceLost()

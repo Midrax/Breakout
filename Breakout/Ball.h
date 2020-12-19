@@ -9,6 +9,7 @@ public:
 	void Reset();
 	void Render(Matrix view, Matrix proj);
 	void Update(Keyboard::State kb, Vector3 paddleLocation, double dt);
+	Color color;
 	Vector3 location;
 	Vector3 scale;
 	Vector2 speed;

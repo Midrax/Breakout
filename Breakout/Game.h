@@ -80,7 +80,11 @@ private:
     Paddle                                  m_paddle;
     // Edges
     Edges                                   m_edges;
-
-    // FileReader
+    // Bricks
     Bricks                                  m_bricks;
+
+    // Camera
+    DirectX::SimpleMath::Vector3 m_cameraPos = Vector3(0.f, 0.f, 6.5f);
+    float m_pitch = 0;
+    float m_yaw = 0;
 };

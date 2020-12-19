@@ -81,6 +81,7 @@ void Bricks::Render(Matrix view, Matrix proj)
 
 void Bricks::Update(Ball &ball)
 {
+    // Collision between the Ball and the Bricks is handled here
     // A = TOP LEFT, B = TOP RIGHT, C = BOTTOM LEFT;
     Vector2 ballA = Vector2(ball.location.x - ball.scale.x / 2, ball.location.y + ball.scale.y / 2);
     Vector2 ballB = Vector2(ball.location.x + ball.scale.x / 2, ball.location.y + ball.scale.y / 2);
@@ -95,14 +96,18 @@ void Bricks::Update(Ball &ball)
             Vector2 brickB = Vector2(m_brickData[i].location.x + m_brickData[i].scale.x / 2, m_brickData[i].location.y + m_brickData[i].scale.y / 2);
             Vector2 brickC = Vector2(m_brickData[i].location.x - m_brickData[i].scale.x / 2, m_brickData[i].location.y - m_brickData[i].scale.y / 2);
 
+            // The ball has a surrounding collision box. If it is colliding with the brick, the following code will be executed
             if (ballA.y >= brickC.y && ballC.y <= brickA.y &&
                 ballB.x >= brickA.x && ballA.x <= brickB.x
                 )
             {
+                // If the brick that is hit is orange:
                 if (m_brickData[i].color.ToVector3() == Colors::Orange.v)
                 {
                     m_brickData[i].color = Colors::Yellow;
+                    ball.color = Colors::Gold;
                 }
+                // Any other brick:
                 else
                 {
                     m_brickData[i].location.y = -500;
